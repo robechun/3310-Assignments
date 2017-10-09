@@ -10,7 +10,12 @@ Working with different languages -- in Python, Scheme, and Prolog.
 HW 1: Setting up -- Set Up environments for Python, Scheme, and Prolog.  Completed
 
 
-HW 2: Ch 2 Reading; brief summary of the different programming languages and their contributions.
+HW 2: Ch 2 Reading; brief summary of the different programming languages and their contributions. Completed
+
+
+
+
+.
 
 
 
