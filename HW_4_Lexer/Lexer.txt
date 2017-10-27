@@ -1,0 +1,26 @@
+1.	(sum + 47) / total
+
+
+Next token is: 25 Next lexeme is (
+Next token is: 11 Next lexeme is sum
+Next token is: 21 Next lexeme is +
+Next token is: 10 Next lexeme is 47
+Next token is: 26 Next lexeme is )
+Next token is: 24 Next lexeme is /
+Next token is: 11 Next lexeme is total
+Next token is: -1 Next lexeme is EOF
+
+
+
+2. b * b / (a + 1)
+
+Next token is: 11 Next lexeme is b
+Next token is: 23 Next lexeme is *
+Next token is: 11 Next lexeme is b
+Next token is: 24 Next lexeme is /
+Next token is: 25 Next lexeme is (
+Next token is: 11 Next lexeme is a
+Next token is: 21 Next lexeme is +
+Next token is: 10 Next lexeme is 1
+Next token is: 26 Next lexeme is )
+Next token is: -1 Next lexeme is EOF
