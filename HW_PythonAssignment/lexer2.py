@@ -1,12 +1,14 @@
 # By Robert Chung
 # HW for CSC 3310 - Concepts in Programming Languages
 # Dr. Arias
-# Lexer.py
-# This program should take a program written in Mini-Power and output the
+# Lexer2.py
+# This program should take a program written in Mini-Pascal and output the
 #   Tokens and Lexemes into a new file.
+# EXTRA CREDIT
 
 # QUESTIONS:
 # 1) Do we exit from program if we find a syntax error? Or do we keep going?
+# 2) Example has different names for INTEGER: (INT) and PLUS: (ADD); does this matter?
 # 3) How do you want us to format the output (spaces and stuff)
 # 4) String token?? the ':' after a string in one of your example programs
 # 5) You indicate that the quote should be a token, but it's never printed in any example programs.
@@ -21,19 +23,38 @@
 # 6) Add comments -- done
 # 7) Count number of tokens and stuff to print out to file
         # WHAT CONSTITUTES WHEN TO INCREASE COUNT WTF
-# 8) Put the stuff you already encountered into a lookup table ?
-# 9) Quote token -> Do you want QUOTE\n blah\n QUOTE\n
+# 8) Put the stuff you already encountered into a lookup table
 
 import sys
 
-miniPowerLetters = ('a', 'b', 'c', 'd', 'e', 'f', 'e', 'g', 'h', 'i', 'j', 'k',
-                    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-                    'x', 'y', 'z')
-miniPowerDigits = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-miniPowerOtherTokens = {';': "SEMICOLON", '+': "PLUS", '-': "MINUS",
-                        '*': "TIMES", '/': "DIV", '^': "POWER", '=': "ASSIGN",
-                        '\"': "STRING", '(': "LPAREN", ')': "RPAREN"}
-miniPowerType = {'#': "INTEGER", '%': "REAL", '$': "STRING"}
+miniPascalLetters = (
+                     'a', 'b', 'c', 'd', 'e', 'f', 'e', 'g', 'h', 'i', 'j',
+                     'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+                     'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F',
+                     'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+                     'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+                     )
+miniPascalDigits = (
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+                   )
+miniPascalOtherTokens = {
+                         ';': "SEMICOLON", '+': "PLUS", '-': "MINUS",
+                         '*': "TIMES", '=': "EQUALS", '(': "LPAREN",
+                         ')': "RPAREN", "<>": "NOTEQUAL", '<': "LTHAN",
+                         '>': "GRTHAN", "<=": "GROREQ", ">=": "LOREQ",
+                         '[': "LBRACK", ']': "RBRACK", ":=": "ASSIGN",
+                         '.': "PERIOD", ',': "COMMA", ':': "COLON",
+                         "..": "RANGE", "div": "DIV", "or": "OR", "and": "AND",
+                         "not": "NOT", "if": "IF", "then": "THEN",
+                         "else": "ELSE", "of": "OF", "while": "WHILE",
+                         "do": "DO", "begin": "BEGIN", "end": "END",
+                         "read": "READ", "write": "WRITE", "var": "VAR",
+                         "array": "ARRAY", "procedure": "PROCEDURE",
+                         "program": "PROGRAM"
+                         }
+miniPascalIdentifiers = (
+                         "integer", "Boolean", "true", "false"
+                        )
 
 # Global file
 f = ""
@@ -73,10 +94,6 @@ def main():
     print "Processing input file ", inputFile
     while ch != "":
         lex()
-
-    if token == "SEMICOLON":
-        f_out.write("SYNTAX ERROR: shouldn't have semicolon at end of program\n")
-
     print tokenCount, " tokens produced"
     print "Result in file " + outputFile
 
@@ -106,16 +123,14 @@ def lex():
     global f_out
 
     getNextNonWhiteSpace()
-    if ch in miniPowerLetters:
-        handleIDToken()
-    elif ch == '\"':
-        handleSTRINGToken()
-    elif ch in miniPowerOtherTokens:
+    if ch in miniPascalLetters:
+        handleLetters()
+    elif ch == '\'':
+        handleCharConstant()
+    elif ch in miniPascalOtherTokens:
         handleOtherTokens()
-    elif ch in miniPowerDigits:
-        handleNumbers()
-    elif ch == 'P':
-        checkAndHandlePrintToken()
+    elif ch in miniPascalDigits:
+        handleIntegerConstant()
     elif ch == "":
         return
     else:
@@ -123,7 +138,7 @@ def lex():
         getNextChar()
 
 
-def handleIDToken():
+def handleLetters():
     global ch
     global token
     global lexeme
@@ -136,107 +151,92 @@ def handleIDToken():
 
     # Loop until character isn't recognized by letter/digit
     #   add to current lexeme if it is recognized
-    while ch in miniPowerLetters or ch in miniPowerDigits:
+    while ch in miniPascalLetters or ch in miniPascalDigits:
         lexeme += ch
+
+        # If you encounter a reserved word
+        if lexeme in miniPascalOtherTokens:
+            token = miniPascalOtherTokens[lexeme]
+            getNextChar()
+            lexeme += ch
+
+            # Check to see if its standalone reserved word or if they used
+            #   something like beginWord (begin is reserved but not beginWord)
+            if ch == ' ' or                   \
+               ch == '\n' or                  \
+               ch == '\t' or                  \
+               ch in miniPascalOtherTokens:
+                f_out.write(token + '\n')
+                lexeme = ""
+                getNextChar()
+                return
+            else:
+                token = "ID"
+        
         getNextChar()
 
-    # ID must end with a type symbol.
-    #   If not, then it should be error.
-    if ch in miniPowerType:
-        f_out.write(token + '\t' + lexeme + '\t' + miniPowerType[ch] + '\n')
-        tokenCount += 1
-    else:
-        f_out.write("SYNTAX ERROR: Incorrect ID Grammer\n")
+    f_out.write(token + '\t' + lexeme + '\n')
 
-    getNextChar()
     # reset lexeme for next token/lexeme pair
     lexeme = ""
 
 
-def handleSTRINGToken():
+def handleCharConstant():
     global ch
     global lexeme
     global token
     global tokenCount
     global f_out
 
-    token = "STRING"
+    token = "CHAR_CONST"
+    option1 = False
+    op2Count = 1
     getNextChar()
 
-    # Loop until character isn't recognized as a string format
+    # Loop until character isn't recognized as a char const format
     #   add to current lexeme if it is recognized
-    while ch in miniPowerLetters or ch in miniPowerDigits or ch == ' ':
+    while ch != '\'':
         lexeme += ch
+        option1 = True
         getNextChar()
 
-    # String must end with a ".
-    #   If not, then it should be an error.
-    if ch == '\"':
-        f_out.write(token + '\t' + lexeme + '\n')
-        tokenCount += 1
+    # Checking if its '''' instead of 'INSERT HERE'
+    if option1 is False:
+        while ch == '\'':
+            getNextChar()
+            op2Count += 1
+
+        if op2Count != 4:
+            f_out.write("SYNTAX ERROR: Check your const_identifier!")
+        else:
+            f_out.write(token + '\n')
     else:
-        f_out.write("SYNTAX ERROR: Incorrect String Format\n")
+        f_out.write(token + '\t' + lexeme + '\n')
 
     getNextChar()
     lexeme = ""
 
 
-def handleNumbers():
+def handleIntegerConstant():
     global ch
     global token
     global lexeme
     global tokenCount
     global f_out
 
-    # Before encountering a '.' all we know is that it's a INT_CONST.
-    #   We will later check and update if we encounter a '.'
     token = "INT_CONST"
     lexeme += ch
     getNextChar()
 
     # Loop until ch isn't recognized as a number.
     #   Add to current lexeme if it is recognized.
-    while ch in miniPowerDigits:
+    while ch in miniPascalDigits:
         lexeme += ch
         getNextChar()
-
-    # Check to see if the number was a decimal number
-    #   Update the token to a real const if it is.
-    if ch == '.':
-        token = "REAL_CONST"
-        lexeme += ch
-        getNextChar()
-
-        # Same loop as above, just getting rest of the numbers.
-        while ch in miniPowerDigits:
-            lexeme += ch
-            getNextChar()
 
     f_out.write(token + '\t' + lexeme + '\n')
     tokenCount += 1
     lexeme = ""
-
-
-def checkAndHandlePrintToken():
-    global ch
-    global token
-    global lexeme
-    global f_out
-
-    # Not really that efficient imo, TODO make it better
-    printStr = "PRINT"
-    stringComp = ""
-    while ch in printStr:
-        stringComp += ch
-        getNextChar()
-
-    if stringComp == printStr:
-        token = "PRINT"
-        f_out.write(token + '\n')
-    else:
-        f_out.write("SYNTAX ERROR: Did you mean Print?\n")
-
-    getNextChar()
 
 
 def handleOtherTokens():
@@ -245,9 +245,9 @@ def handleOtherTokens():
     global f_out
     global tokenCount
 
-    token = miniPowerOtherTokens[ch]
+    token = miniPascalOtherTokens[ch]
     f_out.write(token + '\n')
-    #tokenCount += 1 TODO
+#    tokenCount += 1 TODO
     getNextChar()
 
 

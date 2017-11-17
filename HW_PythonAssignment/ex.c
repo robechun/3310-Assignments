@@ -131,7 +131,7 @@ void getNonBlank() {
 int lex() {
     lexLen = 0;
     getNonBlank();
-    switch (charClass)
+    switch (charClass)  
     {
     /* Parse identifiers */ 
     case LETTER:
