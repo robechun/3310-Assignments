@@ -88,6 +88,7 @@ def main():
     f_out.close()
 
 
+# getNextChar gets next character in file
 def getNextChar():
     global ch
     global f
@@ -97,6 +98,7 @@ def getNextChar():
         ch = f.read(1)
 
 
+# getNextNonWhiteSpace gets next non white space character in file
 def getNextNonWhiteSpace():
     global ch
     global f
@@ -105,6 +107,7 @@ def getNextNonWhiteSpace():
         getNextChar()
 
 
+# lex gets the next token and lexeme
 def lex():
     global ch
     global f_out
@@ -125,6 +128,8 @@ def lex():
         getNextChar()
 
 
+# handleLetters handles anything that starts with a letter.
+#   handles ID tokens, Predefined ID tokens, and reserved words
 def handleLetters():
     global ch
     global token
@@ -155,6 +160,7 @@ def handleLetters():
     lexeme = ""
 
 
+# handleCharConstant handles character constant tokens.
 def handleCharConstant():
     global ch
     global lexeme
@@ -194,6 +200,7 @@ def handleCharConstant():
     lexeme = ""
 
 
+# handleLetters handles Integer constants.
 def handleIntegerConstant():
     global ch
     global token
@@ -216,7 +223,7 @@ def handleIntegerConstant():
     lexeme = ""
 
 
-# changed where to do getChar()
+# handleOtherTokens handles all other tokens.
 def handleOtherTokens():
     global ch
     global token
