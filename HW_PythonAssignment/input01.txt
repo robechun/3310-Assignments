@@ -1,0 +1,10 @@
+++a#="hell o";   
+b% = * ^ + - / ( ) "";
+123ab# * c;;
+dsfkew$ = "yesyou are right ;
+
+robert# = 10;
+you# = 5;
+together# = robert# * you#;
+str1$ = "wooo you go robert";
+PRINT str1$;

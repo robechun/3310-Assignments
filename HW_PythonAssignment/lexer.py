@@ -1,39 +1,30 @@
-# By Robert Chung
-# HW for CSC 3310 - Concepts in Programming Languages
-# Dr. Arias
-# Lexer.py
-# This program should take a program written in Mini-Power and output the
-#   Tokens and Lexemes into a new file.
-
-# QUESTIONS:
-# 1) Do we exit from program if we find a syntax error? Or do we keep going?
-# 3) How do you want us to format the output (spaces and stuff)
-# 4) String token?? the ':' after a string in one of your example programs
-# 5) You indicate that the quote should be a token, but it's never printed in any example programs.
-#       Do you want us to print "QUOTE" when we encounter a quote, or just take it as a string?
-
-# TODO
-# 1) The last semicolon  -- done
-# 2) Put it into an actual file instead of just printing -- done
-# 3) Check program with tests (Faults)
-# 4) Extra credit?
-# 5) Think about more cases where things would be wrong (relates to #3 todo) -- done
-# 6) Add comments -- done
-# 7) Count number of tokens and stuff to print out to file
-        # WHAT CONSTITUTES WHEN TO INCREASE COUNT WTF
-# 8) Put the stuff you already encountered into a lookup table ?
-# 9) Quote token -> Do you want QUOTE\n blah\n QUOTE\n
+# -------------------------------------------------------------------------- #
+#   By Robert Chung                                                          #
+#   HW for CSC 3310 - Concepts in Programming Languages                      #
+#   Dr. Arias                                                                #
+#   lexer.py                                                                #
+#   This program should take a program written in Mini-Power and output      #
+#   the Tokens and Lexemes into a new file.                                  #
+# -------------------------------------------------------------------------- #
 
 import sys
 
-miniPowerLetters = ('a', 'b', 'c', 'd', 'e', 'f', 'e', 'g', 'h', 'i', 'j', 'k',
+miniPowerLetters = (
+                    'a', 'b', 'c', 'd', 'e', 'f', 'e', 'g', 'h', 'i', 'j', 'k',
                     'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-                    'x', 'y', 'z')
-miniPowerDigits = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-miniPowerOtherTokens = {';': "SEMICOLON", '+': "PLUS", '-': "MINUS",
+                    'x', 'y', 'z'
+                    )
+miniPowerDigits = (
+                   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+                  )
+miniPowerOtherTokens = {
+                        ';': "SEMICOLON", '+': "PLUS", '-': "MINUS",
                         '*': "TIMES", '/': "DIV", '^': "POWER", '=': "ASSIGN",
-                        '\"': "STRING", '(': "LPAREN", ')': "RPAREN"}
-miniPowerType = {'#': "INTEGER", '%': "REAL", '$': "STRING"}
+                        '\"': "STRING", '(': "LPAREN", ')': "RPAREN"
+                       }
+miniPowerType = {
+                 '#': "INTEGER", '%': "REAL", '$': "STRING"
+                }
 
 # Global file
 f = ""
@@ -50,32 +41,33 @@ def main():
     global f
     global f_out
 
-    # ----------------------------------------------------------------- #
-    #                   ======= FILE OPENING =======                    #
-    #                      Opening Input File
-    inputFile = sys.argv[1]
+    # ----------------------------------------------------------------------- #
+    #                      ======= FILE OPENING =======                       #
+    #                           Opening Input File                            #
+    try:
+        inputFile = sys.argv[1]
+    except:
+        print "ERROR: Did you specify a file to print to?"
+        return
     try:
         f = open(inputFile, 'r')
     except IOError:
-        print "Unable to open the file you specificed! Please try again."
+        print "ERROR: Unable to open the file you specified! Please try again."
         return
-    # ----------------------------------------------------------------- #
-    #                Opening Output File for writing
+    # ----------------------------------------------------------------------- #
+    #                     Opening Output File for writing
     outputFile = inputFile.split('.')[0] + ".out"
     try:
         f_out = open(outputFile, 'w')
     except IOError:
-        print "Error creating new file for writing"
+        print "ERROR: Error creating new file for writing"
         return
-    # ================================================================= #
+    # ======================================================================= #
 
     # Actual lex time now
     print "Processing input file ", inputFile
     while ch != "":
         lex()
-
-    if token == "SEMICOLON":
-        f_out.write("SYNTAX ERROR: shouldn't have semicolon at end of program\n")
 
     print tokenCount, " tokens produced"
     print "Result in file " + outputFile
@@ -84,6 +76,7 @@ def main():
     f_out.close()
 
 
+# getNextChar gets next character in file
 def getNextChar():
     global ch
     global f
@@ -93,6 +86,7 @@ def getNextChar():
         ch = f.read(1)
 
 
+# getNextNonWhiteSpace gets next non white space character in file
 def getNextNonWhiteSpace():
     global ch
     global f
@@ -101,6 +95,7 @@ def getNextNonWhiteSpace():
         getNextChar()
 
 
+# lex gets the next token and lexeme
 def lex():
     global ch
     global f_out
@@ -119,10 +114,11 @@ def lex():
     elif ch == "":
         return
     else:
-        f_out.write("SYNTAX ERROR: Character not recognized!\n")
+        f_out.write("LEXICAL ERROR: Character not recognized!\n")
         getNextChar()
 
 
+# handleIDToken handles figuring out ID tokens
 def handleIDToken():
     global ch
     global token
@@ -146,13 +142,15 @@ def handleIDToken():
         f_out.write(token + '\t' + lexeme + '\t' + miniPowerType[ch] + '\n')
         tokenCount += 1
     else:
-        f_out.write("SYNTAX ERROR: Incorrect ID Grammer\n")
+        f_out.write("LEXICAL ERROR: Didn't find ID Type!"
+                    " Check your whitespace or ID syntax!\n")
 
     getNextChar()
     # reset lexeme for next token/lexeme pair
     lexeme = ""
 
 
+# handleSTRINGToken handles figuring out string tokens
 def handleSTRINGToken():
     global ch
     global lexeme
@@ -160,6 +158,12 @@ def handleSTRINGToken():
     global tokenCount
     global f_out
 
+    # Quotation is a token.
+    token = "QUOTE"
+    f_out.write(token + '\n')
+    tokenCount += 1
+
+    # Now doing String
     token = "STRING"
     getNextChar()
 
@@ -173,14 +177,18 @@ def handleSTRINGToken():
     #   If not, then it should be an error.
     if ch == '\"':
         f_out.write(token + '\t' + lexeme + '\n')
-        tokenCount += 1
+        f_out.write("QUOTE" + '\n')
+        tokenCount += 2
     else:
-        f_out.write("SYNTAX ERROR: Incorrect String Format\n")
+        f_out.write("LEXICAL ERROR: Incorrect String Format. "
+                    "Are you missing a \"? \n")
 
     getNextChar()
     lexeme = ""
 
 
+# handleNumbers handles numbers that it comes across and checks to see
+#   if it is a REAL_CONST or INT_CONST
 def handleNumbers():
     global ch
     global token
@@ -217,11 +225,13 @@ def handleNumbers():
     lexeme = ""
 
 
+# checkAndHandlePrintToken handles the PRINT token
 def checkAndHandlePrintToken():
     global ch
     global token
     global lexeme
     global f_out
+    global tokenCount
 
     # Not really that efficient imo, TODO make it better
     printStr = "PRINT"
@@ -233,12 +243,14 @@ def checkAndHandlePrintToken():
     if stringComp == printStr:
         token = "PRINT"
         f_out.write(token + '\n')
+        tokenCount += 1
     else:
-        f_out.write("SYNTAX ERROR: Did you mean Print?\n")
+        f_out.write("LEXICAL ERROR: Did you mean PRINT?\n")
 
     getNextChar()
 
 
+# handleOtherTokens takes care of any other tokens that are valid
 def handleOtherTokens():
     global ch
     global token
@@ -247,13 +259,9 @@ def handleOtherTokens():
 
     token = miniPowerOtherTokens[ch]
     f_out.write(token + '\n')
-    #tokenCount += 1 TODO
+    tokenCount += 1
     getNextChar()
 
 
 if __name__ == "__main__":
     main()
-
-
-# When encountered with error, could output error that you know of
-#   And then ignore everything until the semicolon. (Possible another way)

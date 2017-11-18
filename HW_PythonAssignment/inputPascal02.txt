@@ -1,0 +1,14 @@
+:=<><<<==>=
+beginA := abcde
+'''''
+''''
+'sfdjwoefw sdofijwoafj sd*** ofjo!@#!#)S'
+begin end war var writeln write dodo:; integer integers Boolean boolean true True False
+
+?~&
+
+l := 0;
+h := High(list) - 1;
+binarySearch := -1;
+else if list[m] < element then
+end

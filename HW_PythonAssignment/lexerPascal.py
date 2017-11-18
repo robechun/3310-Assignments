@@ -1,29 +1,11 @@
-# By Robert Chung
-# HW for CSC 3310 - Concepts in Programming Languages
-# Dr. Arias
-# Lexer2.py
-# This program should take a program written in Mini-Pascal and output the
-#   Tokens and Lexemes into a new file.
-# EXTRA CREDIT
-
-# QUESTIONS:
-# 1) Do we exit from program if we find a syntax error? Or do we keep going?
-# 2) Example has different names for INTEGER: (INT) and PLUS: (ADD); does this matter?
-# 3) How do you want us to format the output (spaces and stuff)
-# 4) String token?? the ':' after a string in one of your example programs
-# 5) You indicate that the quote should be a token, but it's never printed in any example programs.
-#       Do you want us to print "QUOTE" when we encounter a quote, or just take it as a string?
-
-# TODO
-# 1) The last semicolon  -- done
-# 2) Put it into an actual file instead of just printing -- done
-# 3) Check program with tests (Faults)
-# 4) Extra credit?
-# 5) Think about more cases where things would be wrong (relates to #3 todo) -- done
-# 6) Add comments -- done
-# 7) Count number of tokens and stuff to print out to file
-        # WHAT CONSTITUTES WHEN TO INCREASE COUNT WTF
-# 8) Put the stuff you already encountered into a lookup table
+# -------------------------------------------------------------------------- #
+#   By Robert Chung                                                          #
+#   HW for CSC 3310 - Concepts in Programming Languages                      #
+#   Dr. Arias                                                                #
+#   lexer2.py                                                                #
+#   This program should take a program written in Mini-Pascal and output     #
+#   the Tokens and Lexemes into a new file.                                  #
+# ------------------------  EXTRA CREDIT ----------------------------------- #
 
 import sys
 
@@ -41,7 +23,7 @@ miniPascalOtherTokens = {
                          ';': "SEMICOLON", '+': "PLUS", '-': "MINUS",
                          '*': "TIMES", '=': "EQUALS", '(': "LPAREN",
                          ')': "RPAREN", "<>": "NOTEQUAL", '<': "LTHAN",
-                         '>': "GRTHAN", "<=": "GROREQ", ">=": "LOREQ",
+                         '>': "GRTHAN", "<=": "LTOREQ", ">=": "GTOREQ",
                          '[': "LBRACK", ']': "RBRACK", ":=": "ASSIGN",
                          '.': "PERIOD", ',': "COMMA", ':': "COLON",
                          "..": "RANGE", "div": "DIV", "or": "OR", "and": "AND",
@@ -52,9 +34,9 @@ miniPascalOtherTokens = {
                          "array": "ARRAY", "procedure": "PROCEDURE",
                          "program": "PROGRAM"
                          }
-miniPascalIdentifiers = (
-                         "integer", "Boolean", "true", "false"
-                        )
+miniPascalIdentifiers = {
+                         "integer", "Boolean", "True", "False"
+                        }
 
 # Global file
 f = ""
@@ -71,29 +53,34 @@ def main():
     global f
     global f_out
 
-    # ----------------------------------------------------------------- #
-    #                   ======= FILE OPENING =======                    #
-    #                      Opening Input File
-    inputFile = sys.argv[1]
+    # ----------------------------------------------------------------------- #
+    #                      ======= FILE OPENING =======                       #
+    #                           Opening Input File                            #
+    try:
+        inputFile = sys.argv[1]
+    except:
+        print "ERROR: Did you specify a file to print to?"
+        return
     try:
         f = open(inputFile, 'r')
     except IOError:
-        print "Unable to open the file you specificed! Please try again."
+        print "ERROR: Unable to open the file you specified! Please try again."
         return
-    # ----------------------------------------------------------------- #
-    #                Opening Output File for writing
+    # ----------------------------------------------------------------------- #
+    #                     Opening Output File for writing
     outputFile = inputFile.split('.')[0] + ".out"
     try:
         f_out = open(outputFile, 'w')
     except IOError:
-        print "Error creating new file for writing"
+        print "ERROR: Error creating new file for writing"
         return
-    # ================================================================= #
+    # ======================================================================= #
 
     # Actual lex time now
     print "Processing input file ", inputFile
     while ch != "":
         lex()
+
     print tokenCount, " tokens produced"
     print "Result in file " + outputFile
 
@@ -134,7 +121,7 @@ def lex():
     elif ch == "":
         return
     else:
-        f_out.write("SYNTAX ERROR: Character not recognized!\n")
+        f_out.write("LEXICAL ERROR: Character not recognized!\n")
         getNextChar()
 
 
@@ -153,31 +140,18 @@ def handleLetters():
     #   add to current lexeme if it is recognized
     while ch in miniPascalLetters or ch in miniPascalDigits:
         lexeme += ch
-
-        # If you encounter a reserved word
-        if lexeme in miniPascalOtherTokens:
-            token = miniPascalOtherTokens[lexeme]
-            getNextChar()
-            lexeme += ch
-
-            # Check to see if its standalone reserved word or if they used
-            #   something like beginWord (begin is reserved but not beginWord)
-            if ch == ' ' or                   \
-               ch == '\n' or                  \
-               ch == '\t' or                  \
-               ch in miniPascalOtherTokens:
-                f_out.write(token + '\n')
-                lexeme = ""
-                getNextChar()
-                return
-            else:
-                token = "ID"
-        
         getNextChar()
 
-    f_out.write(token + '\t' + lexeme + '\n')
+    if lexeme in miniPascalOtherTokens:
+        token = miniPascalOtherTokens[lexeme]
+        f_out.write(token + '\n')
+    elif lexeme in miniPascalIdentifiers:
+        token = "PREDEFINED ID"
+        f_out.write(token + '\t' + lexeme + '\n')
+    else:
+        f_out.write(token + '\t' + lexeme + '\n')
 
-    # reset lexeme for next token/lexeme pair
+    tokenCount += 1
     lexeme = ""
 
 
@@ -207,11 +181,14 @@ def handleCharConstant():
             op2Count += 1
 
         if op2Count != 4:
-            f_out.write("SYNTAX ERROR: Check your const_identifier!")
+            f_out.write("LEXICAL ERROR: Check your const_identifier!\n")
+            return
         else:
             f_out.write(token + '\n')
     else:
         f_out.write(token + '\t' + lexeme + '\n')
+
+    tokenCount += 1
 
     getNextChar()
     lexeme = ""
@@ -239,21 +216,34 @@ def handleIntegerConstant():
     lexeme = ""
 
 
+# changed where to do getChar()
 def handleOtherTokens():
     global ch
     global token
     global f_out
     global tokenCount
 
-    token = miniPascalOtherTokens[ch]
-    f_out.write(token + '\n')
-#    tokenCount += 1 TODO
-    getNextChar()
+    possibleToken = ch
+    tempCh = ch
+
+    # Taking care of multi-character tokens
+    if ch == '.' or ch == '>' or ch == '<' or ch == ':':
+        getNextChar()
+        possibleToken += ch
+        if possibleToken in miniPascalOtherTokens:
+            token = miniPascalOtherTokens[possibleToken]
+            f_out.write(token + '\n')
+            getNextChar()
+        else:
+            token = miniPascalOtherTokens[tempCh]
+            f_out.write(token + '\n')
+    else:
+        token = miniPascalOtherTokens[ch]
+        f_out.write(token + '\n')
+        getNextChar()
+
+    tokenCount += 1
 
 
 if __name__ == "__main__":
     main()
-
-
-# When encountered with error, could output error that you know of
-#   And then ignore everything until the semicolon. (Possible another way)

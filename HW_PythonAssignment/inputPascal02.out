@@ -1,0 +1,60 @@
+ASSIGN
+NOTEQUAL
+LTHAN
+LTHAN
+LTOREQ
+EQUALS
+GTOREQ
+ID	beginA
+ASSIGN
+ID	abcde
+LEXICAL ERROR: Check your const_identifier!
+CHAR_CONST
+CHAR_CONST	sfdjwoefw sdofijwoafj sd*** ofjo!@#!#)S
+BEGIN
+END
+ID	war
+VAR
+ID	writeln
+WRITE
+ID	dodo
+COLON
+SEMICOLON
+PREDEFINED ID	integer
+ID	integers
+PREDEFINED ID	Boolean
+ID	boolean
+ID	true
+PREDEFINED ID	True
+PREDEFINED ID	False
+LEXICAL ERROR: Character not recognized!
+LEXICAL ERROR: Character not recognized!
+LEXICAL ERROR: Character not recognized!
+ID	l
+ASSIGN
+INT_CONST	0
+SEMICOLON
+ID	h
+ASSIGN
+ID	High
+LPAREN
+ID	list
+RPAREN
+MINUS
+INT_CONST	1
+SEMICOLON
+ID	binarySearch
+ASSIGN
+MINUS
+INT_CONST	1
+SEMICOLON
+ELSE
+IF
+ID	list
+LBRACK
+ID	m
+RBRACK
+LTHAN
+ID	element
+THEN
+END

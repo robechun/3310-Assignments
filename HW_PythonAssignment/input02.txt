@@ -1,0 +1,5 @@
+          b% = 4.3023;
+c%     =1.231399;
+def%=b%^c%/b#;
+PRINT "almost the end    "
+PRNT "oh";
