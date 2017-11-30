@@ -1,0 +1,10 @@
+intersects(square(point2d(3,14),4), rectangle(point2d(6,11), point2d(15,8))).
+intersects(square(point2d(3,14),4), circle(point2d(9,18),3)).
+intersects(circle(point2d(9,18),3), segment(point2d(7,21), point2d(7,15))).
+contained(square(point2d(9,20),1), circle(point2d(9,18),3)).
+on(point2d(12,18), circle(point2d(9,18),3)).
+on(point2d(12,18), segment(point2d(7,21), point2d(7,15))).
+parallel(segment(point2d(10,13), point2d(15,18)), segment(point2d(13,14), point2d(15,16))).
+parallel(segment(point2d(10,13), point2d(15,18)), segment(point2d(14,15), point2d(16,13))).
+perpendicular(segment(point2d(13,14), point2d(15,16)), segment(point2d(14,15), point2d(16,13))).
+vertical(segment(point2d(7,21), point2d(7,15))).
